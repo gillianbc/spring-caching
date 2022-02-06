@@ -16,26 +16,21 @@
 
 package com.example.servingwebcontent;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-
 import org.junit.jupiter.api.Test;
-
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.lang.reflect.GenericArrayType;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @WebMvcTest(controllers = GreetingController.class)
 public class ServingWebContentApplicationTest {
@@ -43,21 +38,25 @@ public class ServingWebContentApplicationTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-
-
+	@TestConfiguration
+	@EnableCaching
 	static class Config {
-
+		// Simulating your caching configuration
 		@Bean
 		CacheManager cacheManager() {
-			return new ConcurrentMapCacheManager();
+			return new ConcurrentMapCacheManager("sample");
 		}
 
+		// A service mock instead of the real proxy
 		@Bean
 		GreetingService greetingService() {
-			return new GreetingService();
+			return Mockito.mock(GreetingService.class);
 		}
 
 	}
+
+	@Autowired
+	private CacheManager cacheManager;
 
 	@Autowired
 	private GreetingService greetingService;
