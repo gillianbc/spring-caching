@@ -18,6 +18,7 @@ package com.example.servingwebcontent;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -29,7 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.lang.reflect.GenericArrayType;
 
 @WebMvcTest(controllers = GreetingController.class)
 public class ServingWebContentApplicationTest {
@@ -37,7 +43,23 @@ public class ServingWebContentApplicationTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	@MockBean
+
+
+	static class Config {
+
+		@Bean
+		CacheManager cacheManager() {
+			return new ConcurrentMapCacheManager();
+		}
+
+		@Bean
+		GreetingService greetingService() {
+			return new GreetingService();
+		}
+
+	}
+
+	@Autowired
 	private GreetingService greetingService;
 
 	@Test
@@ -58,6 +80,7 @@ public class ServingWebContentApplicationTest {
 				.andExpect(content().string(containsString("Hello, World!")));
 		Mockito.verify(greetingService, times(1))
 				.extendName("World");
+
 	}
 
 	@Test
